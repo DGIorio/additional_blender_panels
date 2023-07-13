@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Mesh Bones, Cosines, Collision Tag and Image Properties Panels",
     "author": "DGIorio",
-    "version": (2, 3),
+    "version": (2, 4),
     "blender": (3, 1, 0),
     "location": "Properties Panel > Object Data Properties",
     "description": "Quick access to vertex bones, edge cosines, collision tag and image properties",
@@ -275,24 +275,26 @@ class CollisionTagPanel(bpy.types.Panel):
 	def poll(cls, context):
 		if context.mode == 'EDIT_MESH':
 			me = context.edit_object.data
-			fl = me.polygon_layers_int.get("collision_tag0") or me.polygon_layers_int.new(name="collision_tag0")
-
+			#fl = me.polygon_layers_int.get("collision_tag0") or me.polygon_layers_int.new(name="collision_tag0")
+			fl = me.polygon_layers_int.get("collision_tag1") or me.polygon_layers_int.new(name="collision_tag1")
+			
 			ret = False
 			if fl:
 				cls.ebm.setdefault(me.name, bmesh.from_edit_mesh(me))
 				ret = True
 				#return True
-
+			
 			if ret == True:
 				return True
-
+		
 		cls.ebm.clear()
 		return False
-
+	
 	def draw(self, context):
 		layout = self.layout
 		me = context.edit_object.data
-		layout.prop(me, "collision_tag0")
+		#layout.prop(me, "collision_tag0")
+		layout.prop(me, "collision_tag1")
 
 
 def set_int_blend_index1(self, value):
@@ -681,6 +683,31 @@ def get_int_collision_tag0(self):
 	return 0
 
 
+def set_int_collision_tag1(self, value):
+	bm = CollisionTagPanel.ebm.setdefault(self.name, bmesh.from_edit_mesh(self))
+
+	# get the collision tag layer
+	collision_tag = (bm.faces.layers.int.get("collision_tag1") or bm.faces.layers.int.new("collision_tag1"))
+
+	af = None
+	for elem in reversed(bm.select_history):
+		if isinstance(elem, bmesh.types.BMFace):
+			af = elem
+			break
+	if af:
+		af[collision_tag] = value
+		bmesh.update_edit_mesh(self)
+
+def get_int_collision_tag1(self):
+	bm = CollisionTagPanel.ebm.setdefault(self.name, bmesh.from_edit_mesh(self))
+	collision_tag = bm.faces.layers.int.get("collision_tag1") or bm.faces.layers.int.new("collision_tag1")
+
+	for elem in reversed(bm.select_history):
+		if isinstance(elem, bmesh.types.BMFace):
+			return(elem[collision_tag])
+	
+	return 0
+
 def register():
 	for klass in CLASSES:
 		bpy.utils.register_class(klass)
@@ -701,7 +728,8 @@ def register():
 	bpy.types.Mesh.edge_cosine3 = bpy.props.IntProperty(name="Edge cosine 3", description="Edge cosine", min=0, max=255, get=get_int_edge_cosine3, set=set_int_edge_cosine3)
 	bpy.types.Mesh.edge_cosine4 = bpy.props.IntProperty(name="Edge cosine 4", description="Edge cosine", min=0, max=255, get=get_int_edge_cosine4, set=set_int_edge_cosine4)
 	
-	bpy.types.Mesh.collision_tag0 = bpy.props.IntProperty(name="Collision tag 0", description="Collision tag", min=0, max=0xFFFF, get=get_int_collision_tag0, set=set_int_collision_tag0)
+	#bpy.types.Mesh.collision_tag0 = bpy.props.IntProperty(name="Collision tag 0", description="Collision tag", min=0, max=0xFFFF, get=get_int_collision_tag0, set=set_int_collision_tag0)
+	bpy.types.Mesh.collision_tag1 = bpy.props.IntProperty(name="Collision tag 1", description="Collision tag", min=0, max=0xFFFF, get=get_int_collision_tag1, set=set_int_collision_tag1)
 	
 	bpy.types.Image.is_shared_asset = bpy.props.BoolProperty(name='is_shared_asset', description="Define if the data is a shared asset or not", default=False)
 	bpy.types.Image.dimension = bpy.props.IntProperty(name='dimension', description='Textures array size or texture type of the image', min=0, max=0xFFFF, default=1)
@@ -739,7 +767,8 @@ def unregister():
 	delattr(bpy.types.Mesh, "edge_cosine3")
 	delattr(bpy.types.Mesh, "edge_cosine4")
 	
-	delattr(bpy.types.Mesh, "collision_tag0")
+	#delattr(bpy.types.Mesh, "collision_tag0")
+	delattr(bpy.types.Mesh, "collision_tag1")
 	
 	delattr(bpy.types.Image, "is_shared_asset")
 	delattr(bpy.types.Image, "dimension")
