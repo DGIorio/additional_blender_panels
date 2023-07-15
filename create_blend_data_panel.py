@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Mesh Bones, Cosines, Collision Tag and Image Properties Panels",
     "author": "DGIorio",
-    "version": (2, 4),
+    "version": (2, 5),
     "blender": (3, 1, 0),
     "location": "Properties Panel > Object Data Properties",
     "description": "Quick access to vertex bones, edge cosines, collision tag and image properties",
@@ -34,6 +34,10 @@ class ImagePropertiesPanel(bpy.types.Panel):
 		row = col.row(heading="dimension")
 		row.enabled = not context.edit_image.is_shared_asset
 		row.prop(context.edit_image, "dimension", text="")
+		
+		row = col.row(heading="main_mipmap")
+		row.enabled = not context.edit_image.is_shared_asset
+		row.prop(context.edit_image, "main_mipmap", text="")
 		
 		row = col.row(heading="unk_0x34")
 		row.enabled = not context.edit_image.is_shared_asset
@@ -733,6 +737,7 @@ def register():
 	
 	bpy.types.Image.is_shared_asset = bpy.props.BoolProperty(name='is_shared_asset', description="Define if the data is a shared asset or not", default=False)
 	bpy.types.Image.dimension = bpy.props.IntProperty(name='dimension', description='Textures array size or texture type of the image', min=0, max=0xFFFF, default=1)
+	bpy.types.Image.main_mipmap = bpy.props.IntProperty(name='main_mipmap', description='Textures main mipmap number', min=0, max=0xFF, default=-1)
 	bpy.types.Image.unk_0x34 = bpy.props.IntProperty(name='unk_0x34', description='unk_0x34', default=0x5C0C0)
 	bpy.types.Image.unk_0x38 = bpy.props.IntProperty(name='unk_0x38', description='unk_0x38', default=0x7AFEE50)
 	bpy.types.Image.flags = bpy.props.IntProperty(name='flags', description='flags', default=-1)
