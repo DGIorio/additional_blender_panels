@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Mesh Bones, Cosines, Collision Tag and Image Properties Panels",
     "author": "DGIorio",
-    "version": (2, 5),
+    "version": (2, 5, 2),
     "blender": (3, 1, 0),
     "location": "Properties Panel > Object Data Properties",
     "description": "Quick access to vertex bones, edge cosines, collision tag and image properties",
@@ -23,6 +23,12 @@ class ImagePropertiesPanel(bpy.types.Panel):
 	bl_category = "Image"
 	bl_description = "Set the image custom properties"
 	bl_order = 1
+	
+	@classmethod
+	def poll(self, context):
+		if context.edit_image == None:
+			return False
+		return True
 	
 	def draw(self, context):	# https://docs.blender.org/api/current/bpy.context.html
 		layout = self.layout
@@ -736,7 +742,7 @@ def register():
 	bpy.types.Mesh.collision_tag1 = bpy.props.IntProperty(name="Collision tag 1", description="Collision tag", min=0, max=0xFFFF, get=get_int_collision_tag1, set=set_int_collision_tag1)
 	
 	bpy.types.Image.is_shared_asset = bpy.props.BoolProperty(name='is_shared_asset', description="Define if the data is a shared asset or not", default=False)
-	bpy.types.Image.dimension = bpy.props.IntProperty(name='dimension', description='Textures array size or texture type of the image', min=0, max=0xFFFF, default=1)
+	bpy.types.Image.dimension = bpy.props.IntProperty(name='dimension', description='Textures array size or texture type of the image', min=0, max=0xFFFF, default=2)
 	bpy.types.Image.main_mipmap = bpy.props.IntProperty(name='main_mipmap', description='Textures main mipmap number', min=0, max=0xFF, default=-1)
 	bpy.types.Image.unk_0x34 = bpy.props.IntProperty(name='unk_0x34', description='unk_0x34', default=0x5C0C0)
 	bpy.types.Image.unk_0x38 = bpy.props.IntProperty(name='unk_0x38', description='unk_0x38', default=0x7AFEE50)
